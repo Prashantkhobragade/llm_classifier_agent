@@ -21,7 +21,7 @@ llm = ChatGroq(
 #creating Private data detection agent
 private_data_agent = Agent(
     role = "Data Protection specialist",
-    goal = "Check if the given information contains any Private Data.",
+    goal = "Check if the given {information} contains any Private Data.",
     backstory = """This agent is specialized in Checking private data such as Personal Identification Numbers (e.g., Social Security Numbers),
                 Medical Records, Biometric Data (e.g., fingerprints, retina scans), Personal Financial Information (e.g., bank account details, credit card numbers),
                 Private Communications (e.g., emails, text messages), Home Addresses, Phone Numbers, Birth Dates, Private Photos and Videos
@@ -34,9 +34,9 @@ private_data_agent = Agent(
 )
 
 #creating Internal data detection agent
-Internal_data_agent = Agent(
+internal_data_agent = Agent(
     role = "corporate data manager",
-    goal = """Check if the given information contains the internal data of a company including """,
+    goal = """Check if the given {information} contains the internal data of a company including """,
     backstory = """This agent is specialized in checking Internal data of a company such as internal memos, company policies and procedures, 
                 internal project plans, employee work schedules, internal meeting notes, staff directory and contact information, 
                 internal financial statements, non-public marketing strategies, internal training materials, 
@@ -49,7 +49,7 @@ Internal_data_agent = Agent(
 #creating Confidential data detection agent
 confidential_data_agent = Agent(
     role = "professional in handling Confidential Data",
-    goal = "Check in the given information if any Confidential Data is present.",
+    goal = "Check in the given {information} if any Confidential Data is present.",
     backstory = """
                 This agent understands and manages confidential data such as trade secrets, proprietary algorithms, research and development data, 
                 customer data, contractual agreements, strategic plans, legal documents, vendor information, M&A documents, and confidential business 
@@ -64,7 +64,7 @@ confidential_data_agent = Agent(
 #creating  Restricted Data detection agent
 restricted_data_agent = Agent(
     role = "professional in handling Restricted Data.",
-    goal = "Check in the given information if any Restricted Data is passed.",
+    goal = "Check in the given {information} if any Restricted Data is passed.",
     backstory = """
                 this agent is specialized in understanding and managing restricted data such as national security information, classified government documents, 
                 security codes and access controls, critical infrastructure data, law enforcement investigation reports, sensitive intelligence reports, 
@@ -80,7 +80,7 @@ restricted_data_agent = Agent(
 #creating Public Data detection agent
 public_data_agent = Agent(
     role = "Public Relations Specialist ",
-    goal = "Check in the given information if any Public Data is present.",
+    goal = "Check in the given {information} if any Public Data is present.",
     backstory = """
                 This agent is specialized in understanding and managing public data such as press releases, publicly available financial reports, published research papers, 
                 company marketing materials, public blog posts, news articles, public government records, public social media posts, product catalogs,
@@ -94,5 +94,60 @@ public_data_agent = Agent(
 
 
 #creating Tasks
+private_data_task = Task(
+    description = "Analyze the given information and determine if any private data is available within it.",
+    agent = private_data_agent,
+    expected_output = "Private Data True or False"
+)
+
+internal_data_task = Task(
+    description = "Analyze the given information and determine if any Internal data is available within it.",
+    agent = internal_data_agent,
+    expected_output = "Internal data True or False"
+)
+
+confidential_data_task = Task(
+    description = "Analyze the given information and determine if any Confidential data is available within it.",
+    agent = confidential_data_agent,
+    expected_output = "Confidential data True or False."
+)
+
+restricted_data_task = Task(
+    description = "Analyze the given information and determine if any restricted data is available within it.",
+    agent = restricted_data_agent,
+    expected_output = "restricted data True or False."
+)
+
+public_data_task = Task(
+    description = "Analyze the given information and determine if any Public data is available within it.",
+    agent = public_data_agent,
+    expected_output = "Public data True or False."
+)
 
 
+
+
+    #Crew
+crew = Crew(
+            agents = [private_data_agent, internal_data_agent, 
+                    confidential_data_agent, restricted_data_agent, public_data_agent],
+            tasks = [private_data_task, internal_data_task,
+                    confidential_data_task, restricted_data_task, public_data_task],
+            #process = Process.sequential,
+            verbose = 2
+            )
+
+
+result = crew.kickoff(inputs = {"information": """
+
+                                Jane Doe, residing at 123 Elm Street, Springfield, has been using her bank account number 9876543210 and 
+                                credit card number 4111 1111 1111 1111 
+                                for recent transactions. Her Social Security Number is 555-55-5555, and she has biometric data, 
+                                including fingerprints and retina scans, stored for security purposes. Jane recently received a 
+                                text message from her doctor’s office, reminding her of an appointment on July 15, 2024, 
+                                for a medical checkup, which included details of her recent lab results. 
+                                Her phone number is (555) 123-4567, and her birth date is January 1, 1980. 
+                                Jane’s private photos and videos are stored in a secured digital vault with a password, 
+                                which is “J@neD0e2024,” and her PIN is 1234.
+
+                                            """})
