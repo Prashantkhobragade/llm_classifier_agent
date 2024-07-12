@@ -34,6 +34,7 @@ private_data_agent = Agent(
 )
 
 #creating Internal data detection agent
+#for company specific
 internal_data_agent = Agent(
     role = "corporate data manager",
     goal = """Check if the given {information} contains the internal data of a company including """,
@@ -151,3 +152,6 @@ result = crew.kickoff(inputs = {"information": """
                                 which is “J@neD0e2024,” and her PIN is 1234.
 
                                             """})
+
+
+#langchain visulizer
