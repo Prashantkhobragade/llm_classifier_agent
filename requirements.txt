@@ -1,0 +1,7 @@
+crewai
+crewai[tools]
+python-dotenv
+openai
+langchain_openai
+langchain_groq
+pydub
