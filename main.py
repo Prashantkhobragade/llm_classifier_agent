@@ -142,6 +142,12 @@ public_data_task = Task(
     expected_output = "Public data True or False."
 )
 
+manager_task = Task(
+    description = "Analyze the given {information} and decide which Agent should process the information",
+    agent = manager_agent,
+    expected_output = "name of the agent who is processing the information. if not return Information can not be processed"
+)
+
 
 
 
@@ -149,15 +155,61 @@ public_data_task = Task(
 crew = Crew(
             agents = [manager_agent,private_data_agent, internal_data_agent, 
                     confidential_data_agent, restricted_data_agent, public_data_agent],
-            tasks = [private_data_task, internal_data_task,
+            tasks = [manager_task,private_data_task, internal_data_task,
                     confidential_data_task, restricted_data_task, public_data_task],
-            process = Process.sequential,
+            #process = Process.sequential,
             #manager_agent=manager_agent,
             verbose = 2
             )
 
 
-result = crew.kickoff(inputs = {"information": """ Hye there...., what is the best way to work on AI agents""",
+result = crew.kickoff(inputs = {"information": """ Acme Inc. Internal Memo
+
+To: All Acme Inc. Employees
+From: John Doe, CEO
+Date: July 15, 2024
+Subject: Strategic Initiative and Upcoming Changes
+
+Dear Team,
+
+As we continue to strive for excellence and growth at Acme Inc., it is crucial that we keep everyone informed about our strategic initiatives and upcoming changes. This memo contains sensitive information that should not be shared outside of the company. Your cooperation in maintaining the confidentiality of this information is greatly appreciated.
+
+1. Internal Project Plans:
+
+We are embarking on Project Phoenix, which aims to overhaul our current supply chain management system. The goal is to improve efficiency, reduce costs, and enhance our ability to meet customer demands. This project will be executed in three phases over the next 18 months. Details about the project timeline, key milestones, and team assignments will be shared during the upcoming department meetings.
+
+2. Company Policies and Procedures:
+
+Starting next month, we will be implementing new remote work policies. Employees will be required to work from the office at least three days a week, with the option to work remotely on the remaining two days. This change aims to balance flexibility with the need for in-person collaboration.
+
+3. Employee Work Schedules:
+
+To support the new remote work policy, we are introducing a flexible scheduling system. Employees can choose their in-office days based on team needs and personal preferences, subject to manager approval. Detailed guidelines will be distributed next week.
+
+4. Internal Financial Statements:
+
+Our Q2 financial results indicate a 12% increase in revenue compared to last year, largely driven by the successful launch of our new product line. However, operating expenses have also risen by 8% due to increased investment in research and development. The finance team is working on a detailed report that will be shared with senior management.
+
+5. Non-public Marketing Strategies:
+
+We are planning a major marketing campaign for Q4, focused on our new eco-friendly product range. The campaign will include targeted digital advertising, influencer partnerships, and a series of sustainability-themed events. Details about the campaign strategy and execution plan will be shared in the next marketing department meeting.
+
+6. Internal Training Materials:
+
+To support our strategic initiatives, we are rolling out new training programs for employees. These programs will cover advanced data analytics, supply chain optimization, and customer relationship management. Training schedules and materials will be available on the internal portal starting next month.
+
+7. Employee Performance Reviews:
+
+The annual performance review process will begin in August. Managers will receive detailed guidelines and templates for conducting reviews. Employees are encouraged to complete their self-assessments by the end of July.
+
+Please remember that all the information contained in this memo is confidential and should not be disclosed to anyone outside of Acme Inc. If you have any questions or need further clarification, feel free to reach out to your department head.
+
+Thank you for your continued dedication and hard work.
+
+Best regards,
+
+John Doe
+CEO, Acme Inc""",
 "company": "Acme Inc."}
                             )
 
