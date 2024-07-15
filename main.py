@@ -1,15 +1,18 @@
 import os
 import base64
-from openai import OpenAI
+#from openai import OpenAI
 from dotenv import load_dotenv
 from crewai import Agent, Task, Crew, Process
-from langchain_openai import AzureChatOpenAI
+#from langchain_openai import AzureChatOpenAI
 from langchain_groq import ChatGroq
+from crewai_tools import SerperDevTool
+
 
 
 load_dotenv()
 
 groq_api_key = os.environ["GROQ_API_KEY"]
+SERPER_API_KEY = os.environ['SERPER_API_KEY']
 
 llm = ChatGroq(
     model = "llama3-70b-8192",
@@ -17,10 +20,14 @@ llm = ChatGroq(
     api_key = groq_api_key
 )
 
+# Instantiate tools
+#search_tool = SerperDevTool()
+
+
 ##creating agents
 #creating Private data detection agent
 private_data_agent = Agent(
-    role = "Data Protection specialist",
+    role = "Private Data Detection",
     goal = "Check if the given {information} contains any Private Data.",
     backstory = """This agent is specialized in Checking private data such as Personal Identification Numbers (e.g., Social Security Numbers),
                 Medical Records, Biometric Data (e.g., fingerprints, retina scans), Personal Financial Information (e.g., bank account details, credit card numbers),
@@ -36,12 +43,13 @@ private_data_agent = Agent(
 #creating Internal data detection agent
 #for company specific
 internal_data_agent = Agent(
-    role = "corporate data manager",
-    goal = """Check if the given {information} contains the internal data of a company including """,
-    backstory = """This agent is specialized in checking Internal data of a company such as internal memos, company policies and procedures, 
+    role = "Internal Data Detection",
+    goal = "Check if the given {information} contains the internal data of a {company} .",
+    backstory = """This agent is specialized in checking Internal data of a {company} such as internal memos, company policies and procedures, 
                 internal project plans, employee work schedules, internal meeting notes, staff directory and contact information, 
                 internal financial statements, non-public marketing strategies, internal training materials, 
                 and employee performance reviews. you are responsible for managing, safeguarding, and ensuring the proper use of internal company information""",
+    #tools = [search_tool],
     verbose = True,
     allow_delegation = False,
     llm = llm
@@ -49,7 +57,7 @@ internal_data_agent = Agent(
 
 #creating Confidential data detection agent
 confidential_data_agent = Agent(
-    role = "professional in handling Confidential Data",
+    role = "Confidential Data Detection",
     goal = "Check in the given {information} if any Confidential Data is present.",
     backstory = """
                 This agent understands and manages confidential data such as trade secrets, proprietary algorithms, research and development data, 
@@ -64,7 +72,7 @@ confidential_data_agent = Agent(
 
 #creating  Restricted Data detection agent
 restricted_data_agent = Agent(
-    role = "professional in handling Restricted Data.",
+    role = "Restricted Data Detection.",
     goal = "Check in the given {information} if any Restricted Data is passed.",
     backstory = """
                 this agent is specialized in understanding and managing restricted data such as national security information, classified government documents, 
@@ -80,7 +88,7 @@ restricted_data_agent = Agent(
 
 #creating Public Data detection agent
 public_data_agent = Agent(
-    role = "Public Relations Specialist ",
+    role = "Public Data Detection",
     goal = "Check in the given {information} if any Public Data is present.",
     backstory = """
                 This agent is specialized in understanding and managing public data such as press releases, publicly available financial reports, published research papers, 
@@ -94,6 +102,15 @@ public_data_agent = Agent(
 )
 
 
+manager_agent = Agent(
+    role = "Manager",
+    goal = "Manage all above Agents and decides which Agent should process the {information}",
+    backstory = "This agent is responsible for managing and coordinating the work of the other agents in the system.",
+    verbose = True,
+    allow_delegation = False,
+    llm = llm
+)
+
 #creating Tasks
 private_data_task = Task(
     description = "Analyze the given information and determine if any private data is available within it.",
@@ -102,7 +119,7 @@ private_data_task = Task(
 )
 
 internal_data_task = Task(
-    description = "Analyze the given information and determine if any Internal data is available within it.",
+    description = "Analyze the given information and determine if any Internal data of the {company} is available within it.",
     agent = internal_data_agent,
     expected_output = "Internal data True or False"
 )
@@ -130,28 +147,25 @@ public_data_task = Task(
 
     #Crew
 crew = Crew(
-            agents = [private_data_agent, internal_data_agent, 
+            agents = [manager_agent,private_data_agent, internal_data_agent, 
                     confidential_data_agent, restricted_data_agent, public_data_agent],
             tasks = [private_data_task, internal_data_task,
                     confidential_data_task, restricted_data_task, public_data_task],
-            #process = Process.sequential,
+            process = Process.sequential,
+            #manager_agent=manager_agent,
             verbose = 2
             )
 
 
-result = crew.kickoff(inputs = {"information": """
-
-                                Jane Doe, residing at 123 Elm Street, Springfield, has been using her bank account number 9876543210 and 
-                                credit card number 4111 1111 1111 1111 
-                                for recent transactions. Her Social Security Number is 555-55-5555, and she has biometric data, 
-                                including fingerprints and retina scans, stored for security purposes. Jane recently received a 
-                                text message from her doctor’s office, reminding her of an appointment on July 15, 2024, 
-                                for a medical checkup, which included details of her recent lab results. 
-                                Her phone number is (555) 123-4567, and her birth date is January 1, 1980. 
-                                Jane’s private photos and videos are stored in a secured digital vault with a password, 
-                                which is “J@neD0e2024,” and her PIN is 1234.
-
-                                            """})
+result = crew.kickoff(inputs = {"information": """ Hye there...., what is the best way to work on AI agents""",
+"company": "Acme Inc."}
+                            )
 
 
-#langchain visulizer
+#print(result.usage_metrics())
+
+
+#langchain_visualizer.visualize(crew_agent)
+
+
+#langchain visulizer ---->> some dependency issues with crewai and langchain

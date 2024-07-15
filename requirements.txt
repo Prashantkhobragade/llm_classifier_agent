@@ -5,3 +5,4 @@ openai
 langchain_openai
 langchain_groq
 pydub
+#langchain_visualizer
