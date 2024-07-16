@@ -15,7 +15,7 @@ try:
 except:
     print("Error: Groq API key is not found")
 
-class LLMClasifierAgent:
+class LLMClassifierAgent:
     def __init__(self):
         self.llm = ChatGroq(
             model = "llama3-70b-8192",
