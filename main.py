@@ -33,8 +33,7 @@ private_data_agent = Agent(
                 Medical Records, Biometric Data (e.g., fingerprints, retina scans), Personal Financial Information (e.g., bank account details, credit card numbers),
                 Private Communications (e.g., emails, text messages), Home Addresses, Phone Numbers, Birth Dates, Private Photos and Videos
                 Passwords and PINs. You are knowledgeable about the principles, laws, and practices related to the protection and management 
-                of personal and sensitive data. This agent ensure that data is handled in compliance with regulations 
-                such as GDPR, HIPAA, CCPA, and others """,
+                of personal and sensitive data. """,
     verbose = True,
     allow_delegation = False,
     llm = llm
@@ -75,7 +74,7 @@ confidential_data_agent = Agent(
 #creating  Restricted Data detection agent
 restricted_data_agent = Agent(
     role = "Restricted Data Detection.",
-    goal = "Check in the given {information} if any Restricted Data is passed.",
+    goal = "Check in the given {information} if any Restricted Data is available.",
     backstory = """
                 this agent is specialized in understanding and managing restricted data such as national security information, classified government documents, 
                 security codes and access controls, critical infrastructure data, law enforcement investigation reports, sensitive intelligence reports, 
@@ -108,11 +107,12 @@ public_data_agent = Agent(
 
 summary_agent = Agent(
     role = "Create brife summary",
-    goal = "Create a brife summary about what all above Agents has returns",
-    backstory = """This agent is a specialized AI agent designed to integrate and summarize the outputs of five distinct data-handling agents. 
+    goal = "Summarise the output of the Agents.",
+    backstory = """This agent is a specialized AI agent designed to integrate and summarize the outputs of five distinct data-handling agents 
+                    (i.e private_data_agent, internal_data_agent, confidential_data_agent, restricted_data_agent, public_data_agent). 
                     Each of these agents focuses on a specific category of data, ensuring comprehensive and secure processing. 
-                    summary_agent's primary mission is to provide a clear, cohesive summary of the work done by all five agents, 
-                    delivering valuable insights and actionable information.""",
+                    summary_agent's primary mission is to provide a clear, cohesive summary of the work done by all five agents, convert the output
+                    into JSON format and delivering valuable insights and actionable information.""",
     verbose = True,
     allow_delegation = False,
     llm = llm
@@ -152,9 +152,9 @@ public_data_task = Task(
 )
 
 summary_task = Task(
-    description = "provide a clear, cohesive summary of the work done by all five agent",
+    description = "provide a clear, cohesive summary of the work done by all five agents",
     agent = summary_agent,
-    expected_output = "Summaries all the output from the Agents (Only True and False with Agent Name) in Json format"
+    expected_output = "output from above created agents, only True and False in json format"
 )
 
 
@@ -167,59 +167,27 @@ crew = Crew(
             tasks = [private_data_task, internal_data_task,
                     confidential_data_task, restricted_data_task, public_data_task, summary_task],
             #process = Process.sequential,
+            #manager_llm=llm,
             #manager_agent=manager_agent,
-            verbose = 2
+            verbose = False
             )
 
 
-result = crew.kickoff(inputs = {"information": """ Acme Inc. Internal Memo
+result = crew.kickoff(inputs = {"information": """ABC Pvt Ltd Expands Market Reach with $200 Million Acquisition of XYZ Company
 
-To: All Acme Inc. Employees
-From: John Doe, CEO
-Date: July 15, 2024
-Subject: Strategic Initiative and Upcoming Changes
+– ABC Pvt Ltd, a renowned AI company, has announced its acquisition of XYZ Company for $200 million USD, solidifying its position as a leader in AI. This strategic acquisition is set to bolster ABC Pvt Ltd's portfolio and strengthen its competitive edge in the global market.
 
-Dear Team,
+The acquisition of XYZ Company, known for its Data Driven Solutions, is expected to bring synergies that will benefit both companies. ABC Pvt Ltd aims to integrate XYZ Company's expertise and resources to enhance its product offerings and broaden its market footprint.
 
-As we continue to strive for excellence and growth at Acme Inc., it is crucial that we keep everyone informed about our strategic initiatives and upcoming changes. This memo contains sensitive information that should not be shared outside of the company. Your cooperation in maintaining the confidentiality of this information is greatly appreciated.
+"We are pleased to complete the acquisition of XYZ Company," commented MR. KAALA, CEO of ABC Pvt Ltd. "This transaction aligns with our strategic growth objectives, allowing us to diversify our capabilities and better serve our customers."
 
-1. Internal Project Plans:
+The acquisition is part of ABC Pvt Ltd's broader strategy to expand into new markets and reinforce its commitment to innovation and customer satisfaction. ABC Pvt Ltd plans to maintain XYZ Company's operations and employees, ensuring a smooth transition and continuity of service for existing customers.
 
-We are embarking on Project Phoenix, which aims to overhaul our current supply chain management system. The goal is to improve efficiency, reduce costs, and enhance our ability to meet customer demands. This project will be executed in three phases over the next 18 months. Details about the project timeline, key milestones, and team assignments will be shared during the upcoming department meetings.
+For more information on ABC Pvt Ltd's latest acquisition and its impact on the industry, please visit www.abcai.com.
 
-2. Company Policies and Procedures:
 
-Starting next month, we will be implementing new remote work policies. Employees will be required to work from the office at least three days a week, with the option to work remotely on the remaining two days. This change aims to balance flexibility with the need for in-person collaboration.
-
-3. Employee Work Schedules:
-
-To support the new remote work policy, we are introducing a flexible scheduling system. Employees can choose their in-office days based on team needs and personal preferences, subject to manager approval. Detailed guidelines will be distributed next week.
-
-4. Internal Financial Statements:
-
-Our Q2 financial results indicate a 12% increase in revenue compared to last year, largely driven by the successful launch of our new product line. However, operating expenses have also risen by 8% due to increased investment in research and development. The finance team is working on a detailed report that will be shared with senior management.
-
-5. Non-public Marketing Strategies:
-
-We are planning a major marketing campaign for Q4, focused on our new eco-friendly product range. The campaign will include targeted digital advertising, influencer partnerships, and a series of sustainability-themed events. Details about the campaign strategy and execution plan will be shared in the next marketing department meeting.
-
-6. Internal Training Materials:
-
-To support our strategic initiatives, we are rolling out new training programs for employees. These programs will cover advanced data analytics, supply chain optimization, and customer relationship management. Training schedules and materials will be available on the internal portal starting next month.
-
-7. Employee Performance Reviews:
-
-The annual performance review process will begin in August. Managers will receive detailed guidelines and templates for conducting reviews. Employees are encouraged to complete their self-assessments by the end of July.
-
-Please remember that all the information contained in this memo is confidential and should not be disclosed to anyone outside of Acme Inc. If you have any questions or need further clarification, feel free to reach out to your department head.
-
-Thank you for your continued dedication and hard work.
-
-Best regards,
-
-John Doe
-CEO, Acme Inc""",
-"company": "Acme Inc."}
+                                    """,
+"company": "XYZ Corporation."}
                             )
 
 
