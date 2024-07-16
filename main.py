@@ -39,7 +39,6 @@ private_data_agent = Agent(
     allow_delegation = False,
     llm = llm
 )
-
 #creating Internal data detection agent
 #for company specific
 internal_data_agent = Agent(
@@ -55,6 +54,7 @@ internal_data_agent = Agent(
     llm = llm
 )
 
+
 #creating Confidential data detection agent
 confidential_data_agent = Agent(
     role = "Confidential Data Detection",
@@ -69,6 +69,8 @@ confidential_data_agent = Agent(
     allow_delegation = False,
     llm = llm
 )
+
+
 
 #creating  Restricted Data detection agent
 restricted_data_agent = Agent(
@@ -86,6 +88,7 @@ restricted_data_agent = Agent(
     llm = llm
 )
 
+
 #creating Public Data detection agent
 public_data_agent = Agent(
     role = "Public Data Detection",
@@ -102,14 +105,19 @@ public_data_agent = Agent(
 )
 
 
-manager_agent = Agent(
-    role = "Manager",
-    goal = "Manage all above Agents and decides which Agent should process the {information}",
-    backstory = "This agent is responsible for managing and coordinating the work of the other agents in the system.",
+
+summary_agent = Agent(
+    role = "Create brife summary",
+    goal = "Create a brife summary about what all above Agents has returns",
+    backstory = """This agent is a specialized AI agent designed to integrate and summarize the outputs of five distinct data-handling agents. 
+                    Each of these agents focuses on a specific category of data, ensuring comprehensive and secure processing. 
+                    summary_agent's primary mission is to provide a clear, cohesive summary of the work done by all five agents, 
+                    delivering valuable insights and actionable information.""",
     verbose = True,
     allow_delegation = False,
     llm = llm
 )
+
 
 #creating Tasks
 private_data_task = Task(
@@ -130,6 +138,7 @@ confidential_data_task = Task(
     expected_output = "Confidential data True or False."
 )
 
+
 restricted_data_task = Task(
     description = "Analyze the given information and determine if any restricted data is available within it.",
     agent = restricted_data_agent,
@@ -142,10 +151,10 @@ public_data_task = Task(
     expected_output = "Public data True or False."
 )
 
-manager_task = Task(
-    description = "Analyze the given {information} and decide which Agent should process the information",
-    agent = manager_agent,
-    expected_output = "name of the agent who is processing the information. if not return Information can not be processed"
+summary_task = Task(
+    description = "provide a clear, cohesive summary of the work done by all five agent",
+    agent = summary_agent,
+    expected_output = "Summaries all the output from the Agents (Only True and False with Agent Name) in Json format"
 )
 
 
@@ -153,10 +162,10 @@ manager_task = Task(
 
     #Crew
 crew = Crew(
-            agents = [manager_agent,private_data_agent, internal_data_agent, 
-                    confidential_data_agent, restricted_data_agent, public_data_agent],
-            tasks = [manager_task,private_data_task, internal_data_task,
-                    confidential_data_task, restricted_data_task, public_data_task],
+            agents = [private_data_agent, internal_data_agent, 
+                    confidential_data_agent, restricted_data_agent, public_data_agent, summary_agent],
+            tasks = [private_data_task, internal_data_task,
+                    confidential_data_task, restricted_data_task, public_data_task, summary_task],
             #process = Process.sequential,
             #manager_agent=manager_agent,
             verbose = 2
