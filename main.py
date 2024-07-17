@@ -98,7 +98,7 @@ if __name__ == "__main__":
 
         llm_classifier = LLMClassifier(information, company)
         result = llm_classifier.run()
-        print("\n\n############################")
+        print("\n\n################################")
         print("## Classification Result")
         print("################################\n")
         print(result)
