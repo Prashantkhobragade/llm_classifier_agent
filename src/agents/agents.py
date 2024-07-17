@@ -116,7 +116,7 @@ class LLMClassifierAgent:
                     summary_agent's primary mission is to provide a clear, cohesive summary of the work done by all five agents, convert the output
                     into JSON format and delivering valuable insights and actionable information.""",
             verbose = True,
-            #max_rpm = 2,
+            max_rpm = 2,
             allow_delegation = False,
             llm = self.llm
 )
