@@ -5,4 +5,6 @@ openai
 langchain_openai
 langchain_groq
 pydub
+fastapi
+uvicorn
 #langchain_visualizer
