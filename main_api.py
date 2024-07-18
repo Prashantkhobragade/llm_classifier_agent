@@ -5,6 +5,10 @@ from src.tasks import LLMClassifierTask
 import os
 import logging
 
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+from typing import Any, Dict
+
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -12,13 +16,20 @@ load_dotenv()
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
+app = FastAPI()
+
+class InputData(BaseModel):
+    information: str
+    company: str
+
+
 class LLMClassifier:
-    def __init__(self, information, company):
+    def __init__(self, information: str, company: str):
         self.information = information
         self.company = company
 
 
-    def run(self):
+    def run(self)-> Dict[str, Any]:
         try:
             agents = LLMClassifierAgent()
             tasks = LLMClassifierTask()
@@ -80,18 +91,31 @@ class LLMClassifier:
         
         except Exception as e:
             logger.error("Error in LLMClassifier running: %s", e)
-            raise
+            raise HTTPException(status_code=500, detail=str(e))
     
 
 
+@app.post("/classify/")
+async def classify(input_data: InputData):
+    try:
+        llm_classifier = LLMClassifier(input_data.information, input_data.company)
+        result = llm_classifier.run()
+        return result
+    except Exception as e:
+        logger.error("Error in endpoints: %s", e)
+        raise HTTPException(status_code=500, detail=str(e))
+    
+
+
+"""
 if __name__ == "__main__":
     try:
         print("LLM Classifier Initiated")
         print("-------------------------------------")
         information = input(
-            dedent("""
+            dedent("
                 Enter your information
-                """)
+                ")
         )
 
         company = input("Enter Company Name: ")
@@ -105,3 +129,5 @@ if __name__ == "__main__":
     except Exception as e:
         logger.error("Error in main execution: %s", e)
         raise
+        
+"""
